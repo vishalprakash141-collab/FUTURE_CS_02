@@ -1,57 +1,64 @@
 # FUTURE_CS_02
-# Phishing Detection & Awareness Report — Task 2
+# Phishing Email Detection & Awareness System
 
-Analysis of five email samples to identify phishing/spam indicators, classify risk, and produce prevention guidelines for end users and organizations.
+Security-analyst-style breakdown of 5 phishing/scam email samples: red-flag identification, risk classification (Safe / Suspicious / Phishing), plain-language attack explanations, and an employee Do's & Don'ts checklist.
 
 ## Repository Contents
 
 ```
-├── Phishing_Detection_Awareness_Report.pdf   # Full report (analysis, indicators, risk table, prevention guidelines)
-├── samples/                                  # Raw email sample evidence (5 samples)
+├── Phishing_Detection_Awareness_Report.pdf   # Full report
+├── samples/                                  # Raw email sample evidence (.txt, links defanged)
+│   ├── sample_1_bank_lockout.txt
+│   ├── sample_2_prize_winner.txt
+│   ├── sample_3_it_helpdesk_reset.txt
+│   ├── sample_4_delivery_notification.txt
+│   └── sample_5_internal_memo_safe.txt
+├── images/                                   # Annotated example screenshots used in the report
+│   ├── annotated_phishing_example.png        # Red-flag callouts on a phishing email
+│   └── header_analysis_example.png           # Example header-analyzer output (SPF/DKIM)
 └── README.md
 ```
 
-## Dataset
-
-The 5 email samples analyzed are drawn from the **CEAS 2008 Spam/Phishing Challenge corpus** (`gvc.ceas-challenge.cc`), a public research dataset used for spam/phishing classification benchmarking.
+> **Note on the samples:** the 5 emails are illustrative examples modeled on the most common real-world phishing patterns (fake account-lockout alerts, prize/lottery scams, fake IT-helpdesk password resets, fake delivery notices, plus one genuine internal email for contrast). This keeps the repo safe to make public — no real victims, companies, or live malicious links are involved, and every link in the sample files is defanged with `[.]` so it can't be clicked by accident.
 
 ## Tools Used
 
 | Tool | Purpose |
 |---|---|
-| **Manual header inspection** | Reviewing `From`, `To`, `Date`, and display-name fields for sender/domain mismatches. |
-| **[Google Admin Toolbox — Messageheader](https://toolbox.googleapps.com/apps/main/)** | Parsing raw email headers to check **SPF** and **DKIM** authentication results and trace the full hop-by-hop delivery path (relay servers, per-hop delay, protocol, timestamps). |
-| **Domain/URL review** | Comparing embedded links and sender domains against the claimed sender/brand to spot redirects to unrelated or free-hosting domains. |
-| **Python (`reportlab`)** | Used to compile the findings into the final formatted PDF report. |
+| **Manual header & domain inspection** | Compare the visible sender name against the real sending domain. |
+| **[Google Admin Toolbox — Messageheader](https://toolbox.googleapps.com/apps/messageheader/)** | Parses raw headers to check SPF/DKIM authentication and trace the delivery path hop-by-hop. |
+| **[MxToolbox Email Header Analyzer](https://mxtoolbox.com/EmailHeaders.aspx)** | Cross-checks header analysis and flags suspicious/blacklisted relay servers. |
+| **Browser-based link inspection (no click)** | Reveal a link's real destination (hover / "copy link address") without ever visiting it. |
+| **Python (`reportlab`) / PDF** | Compiling the analysis into a clean, client-ready report. |
 
 ## Analysis Approach
 
-Each of the 5 samples was evaluated across four dimensions:
+Each sample was worked through the same steps a security analyst follows:
 
-1. **Sender / Header Analysis** — Does the display name match the actual sending domain? Is the domain plausible for the claimed sender? Cross-checked with Google Admin Toolbox for SPF/DKIM pass/fail and any unexplained relay hops.
-2. **Link / URL Analysis** — Are embedded links pointing to the sender's own domain, or redirected through unrelated/free-hosting domains?
-3. **Content Analysis** — Does the subject/body use urgency, unrealistic offers, brand impersonation, or obfuscated/filter-evasion text?
-4. **Behavioral / Social-Engineering Pattern** — What persuasion technique is being used (discount lure, brand trust exploitation, filter-evasion noise, counterfeit goods, etc.)?
-
-Based on these four dimensions, each email was assigned a **risk classification** — Low, Medium, Medium-High, or High — combining the degree of technical deception (domain spoofing, redirect links, failed authentication) with the potential harm (credential theft, malware delivery, financial fraud).
+1. **Collect the sample** — capture the full email, including headers, not just the visible body.
+2. **Analyze the headers** — check the real "From" domain and, where available, SPF/DKIM results and the delivery path.
+3. **Inspect the sender domain & links** — compare the claimed brand/organization against the actual domain and where links really point.
+4. **Identify phishing indicators** — urgency language, generic greetings, mismatched domains, unrealistic offers.
+5. **Classify the risk** — **Safe / Suspicious / Phishing**.
+6. **Document findings in plain language** — so any employee, not just IT, understands the attack.
+7. **Write prevention guidance** — a practical Do's and Don'ts checklist.
 
 ### Summary of Findings
 
-| # | Sender | Type | Risk |
+| # | Sender Domain | Subject | Risk |
 |---|---|---|---|
-| 1 | Gretchen Suggs (loanofficertool.com) | Phishing / malicious redirect | High |
-| 2 | Caroline Aragon (thaidomainnames.com) | Spam with filter-evasion obfuscation | Medium-High |
-| 3 | Replica Watches (thebakercompanies.com) | Counterfeit-goods scam | Medium |
-| 4 | Daily Top 10 (tcwpg.com) | Brand impersonation phishing | High |
-| 5 | Apache Bugzilla (issues.apache.org) | Legitimate (ham) — control example | Low |
+| 1 | secure-alert-bank[.]com | Account Will Be Locked | 🔴 Phishing |
+| 2 | global-rewardcenter-payout[.]net | You Have Won $850,000 | 🔴 Phishing |
+| 3 | corp-mail-support[.]com | Password Expires Today | 🔴 Phishing |
+| 4 | track-parcel-status[.]info | Parcel is on hold | 🟠 Suspicious |
+| 5 | yourcompany.com (internal) | Monthly Town Hall reminder | 🟢 Safe |
 
-Full details, indicators, and the SPF/DKIM/delivery-path check for each sample are in (./Phishing_Detection_Awareness_Report.pdf).
+Full indicator lists, plain-language explanations, and the annotated example images are in (./Phishing_Detection_Awareness_Report.pdf).
 
 ## Prevention Guidelines (Summary)
 
-**For end users:** verify the real sending address (not just display name), never click links in unsolicited email, be wary of urgency or "too good to be true" offers, watch for obfuscated/garbled text, and report suspicious emails to IT/security.
+**Do:** verify the sender's real address, hover over links before clicking, go directly to official sites, verify unusual requests through a second channel, report anything suspicious.
 
-**For organizations:** enforce SPF/DKIM/DMARC, deploy layered spam/phishing filtering with link sandboxing, maintain domain/URL reputation blocklists, run phishing-simulation training, and provide an easy internal reporting process.
+**Don't:** click links/attachments from unexpected emails, enter credentials or payment info via an email link, share personal data because an email asked for it, trust urgency as a sign of legitimacy.
 
-See the full report for the complete list of consolidated indicators and detailed guidelines.
-
+See the full report for the complete Do's & Don'ts checklist and IT/security-team guidelines (SPF/DKIM/DMARC, phishing simulations, reporting workflow).
